@@ -4,3 +4,4 @@ github.com/google/gopacket/pcap
 github.com/google/gopacket
 github.com/google/gopacket/ip4defrag
 github.com/google/gopacket/layers
+github.com/google/gopacket/reassembly
