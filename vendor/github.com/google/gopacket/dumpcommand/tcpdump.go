@@ -66,6 +66,7 @@ func Run(src gopacket.PacketDataSource) {
 		version := uint8(data[0]) >> 4
 		ipLength := int(binary.BigEndian.Uint16(data[2:4]))
 		if version == 4 {
+			log.Println(">>>>version is 4")
 			ihl := uint8(data[0]) & 0x0F
 
 			// Truncated IP info
@@ -89,13 +90,14 @@ func Run(src gopacket.PacketDataSource) {
 			}
 
 			if cmp := len(data) - ipLength; cmp > 0 {
+				log.Println(">>>>>parse data")
 				data = data[:ipLength]
 			} else if cmp < 0 {
 				// Truncated packet
 				log.Println(">>>>>>>6",srcIP, "---->" ,dstIP)
 				fmt.Println(packet)
 			}
-
+			log.Println(">>>>>parse data two")
 			data = data[ihl*4:]
 		}
 
