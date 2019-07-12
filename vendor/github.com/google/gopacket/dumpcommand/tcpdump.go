@@ -10,6 +10,7 @@
 package dumpcommand
 
 import (
+	"encoding/binary"
 	"flag"
 	"fmt"
 	"log"
@@ -53,10 +54,51 @@ func Run(src gopacket.PacketDataSource) {
 	truncated := 0
 	layertypes := map[gopacket.LayerType]int{}
 	defragger := ip4defrag.NewIPv4Defragmenter()
-
+	var data, srcIP, dstIP []byte
 	for packet := range source.Packets() {
 		count++
 		bytes += int64(len(packet.Data()))
+
+		// We should remove network layer before parsing TCP/IP data
+		of := 14
+		data = packet.Data()[of:]
+
+		version := uint8(data[0]) >> 4
+		ipLength := int(binary.BigEndian.Uint16(data[2:4]))
+		if version == 4 {
+			ihl := uint8(data[0]) & 0x0F
+
+			// Truncated IP info
+			if len(data) < int(ihl*4) {
+				log.Println(">>>>>>>3")
+				continue
+			}
+
+			srcIP = data[12:16]
+			dstIP = data[16:20]
+			// Too small IP packet
+			if ipLength < 20 {
+				log.Println(">>>>>>>4", srcIP, "---->" ,dstIP)
+				continue
+			}
+
+			// Invalid length
+			if int(ihl*4) > ipLength {
+				log.Println(">>>>>>>5",srcIP, "---->" ,dstIP)
+				continue
+			}
+
+			if cmp := len(data) - ipLength; cmp > 0 {
+				data = data[:ipLength]
+			} else if cmp < 0 {
+				// Truncated packet
+				log.Println(">>>>>>>6",srcIP, "---->" ,dstIP)
+				fmt.Println(packet)
+			}
+
+			data = data[ihl*4:]
+		}
+
 
 		// defrag the IPv4 packet if required
 		if *defrag {
@@ -66,7 +108,6 @@ func Run(src gopacket.PacketDataSource) {
 			}
 			ip4 := ip4Layer.(*layers.IPv4)
 			l := ip4.Length
-			log.Println("defragger.DefragIPv4")
 			newip4, err := defragger.DefragIPv4(ip4)
 			if err != nil {
 				log.Fatalln("Error while de-fragmenting", err)
