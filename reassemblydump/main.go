@@ -485,7 +485,7 @@ func (t *tcpStream) ReassemblyComplete(ac reassembly.AssemblerContext) bool {
 }
 
 func main() {
-	defer Run()
+	Run()
 	var handle *pcap.Handle
 	var err error
 	if *debug {
