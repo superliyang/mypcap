@@ -60,21 +60,22 @@ func Run(src gopacket.PacketDataSource) {
 
 		// defrag the IPv4 packet if required
 		if *defrag {
-			log.Println(">>>>> truncatd: ", packet.Metadata().Truncated)
 			ip4Layer := packet.Layer(layers.LayerTypeIPv4)
 			if ip4Layer == nil {
 				continue
 			}
 			ip4 := ip4Layer.(*layers.IPv4)
 			l := ip4.Length
-
+			log.Println("defragger.DefragIPv4")
 			newip4, err := defragger.DefragIPv4(ip4)
 			if err != nil {
 				log.Fatalln("Error while de-fragmenting", err)
 			} else if newip4 == nil {
+				log.Println("newip4 is nil")
 				continue // packet fragment, we don't have whole packet yet.
 			}
 			if newip4.Length != l {
+				log.Println("newip4 decode")
 				fmt.Printf("Decoding re-assembled packet: %s\n", newip4.NextLayerType())
 				pb, ok := packet.(gopacket.PacketBuilder)
 				if !ok {
@@ -82,6 +83,7 @@ func Run(src gopacket.PacketDataSource) {
 				}
 				nextDecoder := newip4.NextLayerType()
 				nextDecoder.Decode(newip4.Payload, pb)
+				log.Println("decode already...")
 			}
 		}
 
