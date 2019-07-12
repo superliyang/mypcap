@@ -58,7 +58,7 @@ var hexdump = flag.Bool("dump", false, "Dump HTTP request/response as hex")
 var hexdumppkt = flag.Bool("dumppkt", false, "Dump packet as hex")
 
 // capture
-var iface = flag.String("i", "eth0", "Interface to read packets from")
+var iface = flag.String("i", "en0", "Interface to read packets from")
 var fname = flag.String("r", "", "Filename to read from, overrides -i")
 var snaplen = flag.Int("s", 65536, "Snap length (number of bytes max to read per packet")
 var tstype = flag.String("timestamp_type", "", "Type of timestamps to use")
@@ -335,7 +335,7 @@ type tcpStream struct {
 func (t *tcpStream) Accept(tcp *layers.TCP, ci gopacket.CaptureInfo, dir reassembly.TCPFlowDirection, nextSeq reassembly.Sequence, start *bool, ac reassembly.AssemblerContext) bool {
 	// FSM
 	if !t.tcpstate.CheckState(tcp, dir) {
-		Error("FSM", "%s: Packet rejected by FSM (state:%s)\n", t.ident, t.tcpstate.String())
+		//Error("FSM", "%s: Packet rejected by FSM (state:%s)\n", t.ident, t.tcpstate.String())
 		stats.rejectFsm++
 		if !t.fsmerr {
 			t.fsmerr = true
@@ -348,7 +348,7 @@ func (t *tcpStream) Accept(tcp *layers.TCP, ci gopacket.CaptureInfo, dir reassem
 	// Options
 	err := t.optchecker.Accept(tcp, ci, dir, nextSeq, start)
 	if err != nil {
-		Error("OptionChecker", "%s: Packet rejected by OptionChecker: %s\n", t.ident, err)
+		//Error("OptionChecker", "%s: Packet rejected by OptionChecker: %s\n", t.ident, err)
 		stats.rejectOpt++
 		if !*nooptcheck {
 			return false
@@ -359,10 +359,10 @@ func (t *tcpStream) Accept(tcp *layers.TCP, ci gopacket.CaptureInfo, dir reassem
 	if *checksum {
 		c, err := tcp.ComputeChecksum()
 		if err != nil {
-			Error("ChecksumCompute", "%s: Got error computing checksum: %s\n", t.ident, err)
+			//Error("ChecksumCompute", "%s: Got error computing checksum: %s\n", t.ident, err)
 			accept = false
 		} else if c != 0x0 {
-			Error("Checksum", "%s: Invalid checksum: 0x%x\n", t.ident, c)
+			//Error("Checksum", "%s: Invalid checksum: 0x%x\n", t.ident, c)
 			accept = false
 		}
 	}
