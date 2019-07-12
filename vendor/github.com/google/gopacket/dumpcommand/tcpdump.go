@@ -60,6 +60,7 @@ func Run(src gopacket.PacketDataSource) {
 
 		// defrag the IPv4 packet if required
 		if *defrag {
+			log.Println(">>>>> truncatd: ", packet.Metadata().Truncated)
 			ip4Layer := packet.Layer(layers.LayerTypeIPv4)
 			if ip4Layer == nil {
 				continue

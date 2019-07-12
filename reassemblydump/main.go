@@ -378,10 +378,10 @@ func (t *tcpStream) Accept(tcp *layers.TCP, ci gopacket.CaptureInfo, dir reassem
 	if *checksum {
 		c, err := tcp.ComputeChecksum()
 		if err != nil {
-			//Error("ChecksumCompute", "%s: Got error computing checksum: %s\n", t.ident, err)
+			Error("ChecksumCompute", "%s: Got error computing checksum: %s\n", t.ident, err)
 			accept = false
 		} else if c != 0x0 {
-			//Error("Checksum", "%s: Invalid checksum: 0x%x\n", t.ident, c)
+			Error("Checksum", "%s: Invalid checksum: 0x%x\n", t.ident, c)
 			accept = false
 		}
 	}
