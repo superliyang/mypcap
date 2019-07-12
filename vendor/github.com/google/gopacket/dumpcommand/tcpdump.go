@@ -44,7 +44,7 @@ func Run(src gopacket.PacketDataSource) {
 	source := gopacket.NewPacketSource(src, dec)
 	source.Lazy = *lazy
 	source.NoCopy = true
-	source.DecodeStreamsAsDatagrams = false
+	source.DecodeStreamsAsDatagrams = true
 	fmt.Fprintln(os.Stderr, "Starting to read packets")
 	count := 0
 	bytes := int64(0)
@@ -59,7 +59,6 @@ func Run(src gopacket.PacketDataSource) {
 		bytes += int64(len(packet.Data()))
 
 		// defrag the IPv4 packet if required
-
 		if *defrag {
 			ip4Layer := packet.Layer(layers.LayerTypeIPv4)
 			if ip4Layer == nil {
