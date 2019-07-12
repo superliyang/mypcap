@@ -66,6 +66,25 @@ var promisc = flag.Bool("promisc", true, "Set promiscuous mode")
 
 var memprofile = flag.String("memprofile", "", "Write memory profile")
 
+var cpuprofile = flag.String("cpuprofile", "", "Where to write CPU profile")
+
+func Run() func() {
+	flag.Parse()
+	if *cpuprofile != "" {
+		f, err := os.Create(*cpuprofile)
+		if err != nil {
+			log.Fatalf("could not open cpu profile file %q", *cpuprofile)
+		}
+		pprof.StartCPUProfile(f)
+		return func() {
+			pprof.StopCPUProfile()
+			f.Close()
+		}
+	}
+	return func() {}
+}
+
+
 var stats struct {
 	ipdefrag            int
 	missedBytes         int
@@ -466,6 +485,7 @@ func (t *tcpStream) ReassemblyComplete(ac reassembly.AssemblerContext) bool {
 }
 
 func main() {
+	defer Run()
 	var handle *pcap.Handle
 	var err error
 	if *debug {
