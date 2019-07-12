@@ -30,7 +30,6 @@ import (
 	"time"
 
 	"github.com/google/gopacket"
-	"github.com/google/gopacket/examples/util"
 	"github.com/google/gopacket/ip4defrag"
 	"github.com/google/gopacket/layers" // pulls in all layers decoders
 	"github.com/google/gopacket/pcap"
@@ -467,7 +466,6 @@ func (t *tcpStream) ReassemblyComplete(ac reassembly.AssemblerContext) bool {
 }
 
 func main() {
-	defer util.Run()()
 	var handle *pcap.Handle
 	var err error
 	if *debug {
