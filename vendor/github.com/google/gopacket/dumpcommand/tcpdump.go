@@ -66,19 +66,14 @@ func Run(src gopacket.PacketDataSource) {
 			}
 			ip4 := ip4Layer.(*layers.IPv4)
 			l := ip4.Length
-			//解释说明
-			//如果当前数据包是碎片，那么newip4为nil，同时defragger会存储其碎片，当碎片为最后一块时，返回非nil。
+
 			newip4, err := defragger.DefragIPv4(ip4)
 			if err != nil {
 				log.Fatalln("Error while de-fragmenting", err)
 			} else if newip4 == nil {
-				log.Println("newip4 is nil")
 				continue // packet fragment, we don't have whole packet yet.
 			}
-
-			log.Println(">>>>ip4.length", l, ", newip4.Length:", newip4.Length)
 			if newip4.Length != l {
-				log.Println("newip4 decode")
 				fmt.Printf("Decoding re-assembled packet: %s\n", newip4.NextLayerType())
 				pb, ok := packet.(gopacket.PacketBuilder)
 				if !ok {
@@ -86,7 +81,6 @@ func Run(src gopacket.PacketDataSource) {
 				}
 				nextDecoder := newip4.NextLayerType()
 				nextDecoder.Decode(newip4.Payload, pb)
-				log.Println("decode already...")
 			}
 		}
 
